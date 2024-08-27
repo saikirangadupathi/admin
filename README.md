@@ -5,7 +5,7 @@
 
 
 
-deployed link       https://greencycle-admin-2galvmtt9-saikirangadupathis-projects.vercel.app/user-management
+deployed link       https://greencycle-admin-2galvmtt9-saikirangadupathis-projects.vercel.app
 
 
 
