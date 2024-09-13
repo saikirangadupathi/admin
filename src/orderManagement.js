@@ -110,7 +110,7 @@ const OrderManagement = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('https://recycle-backend-lflh.onrender.com/getorders');
+            const response = await axios.get('https://recycle-backend-apao.onrender.com/getorders');
             setOrders(response.data.orderslist);
             setFilteredOrders(response.data.orderslist);
             console.log('orderssss....',response.data.orderslist)

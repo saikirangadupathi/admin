@@ -51,7 +51,7 @@ const OrdersTable = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get("https://recycle-backend-lflh.onrender.com/getorders");
+      const response = await axios.get("https://recycle-backend-apao.onrender.com/getorders");
       setOrders(response.data.orderslist);
     } catch (error) {
       console.error("Error fetching orders:", error);

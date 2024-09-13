@@ -11,7 +11,7 @@ const InventoryPage = () => {
     // Fetch all inventories on component mount
     const fetchInventories = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories');
         setInventories(response.data);
       } catch (error) {
         console.error('Error fetching inventories:', error);

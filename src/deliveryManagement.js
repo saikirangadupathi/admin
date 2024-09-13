@@ -199,7 +199,7 @@ const DeliveryManagement = () => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/deliveryAgents');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/deliveryAgents');
         setAgents(response.data);
         filterAgents(showAssignPickups, response.data); // Initial filtering based on default state
       } catch (error) {
@@ -209,7 +209,7 @@ const DeliveryManagement = () => {
 
     const fetchAgencies = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/deliveryAgencies');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/deliveryAgencies');
         setAgencies((prevAgencies) => [...prevAgencies, ...response.data]);
       } catch (error) {
         console.error('Error fetching agencies:', error);
@@ -218,7 +218,7 @@ const DeliveryManagement = () => {
 
     const fetchDeliveries = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/deliveryTracking');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/deliveryTracking');
         const pending = response.data.filter(order => order.status === 'pending');
         const dispatched = response.data.filter(order => order.status === 'Dispatched');
         
@@ -231,7 +231,7 @@ const DeliveryManagement = () => {
 
     const fetchPickupTracking = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/pickuptracking');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/pickuptracking');
         const pending = response.data.filter(order => order.status === 'Pending');
         const inProgress = response.data.filter(order => order.status === 'In Progress');
         setPickupTracking(pending);
@@ -266,7 +266,7 @@ const DeliveryManagement = () => {
 
   const handleDelete = async (agentId) => {
     try {
-      await axios.delete(`https://recycle-backend-lflh.onrender.com/api/deliveryAgents/${agentId}`);
+      await axios.delete(`https://recycle-backend-apao.onrender.com/api/deliveryAgents/${agentId}`);
       setAgents(agents.filter((agent) => agent.id !== agentId));
     } catch (error) {
       console.error('Error deleting agent:', error);
@@ -275,7 +275,7 @@ const DeliveryManagement = () => {
 
   const handleDeleteAgency = async (agencyId) => {
     try {
-      await axios.delete(`https://recycle-backend-lflh.onrender.com/api/deliveryAgencies/${agencyId}`);
+      await axios.delete(`https://recycle-backend-apao.onrender.com/api/deliveryAgencies/${agencyId}`);
       setAgencies(agencies.filter((agency) => agency.id !== agencyId));
     } catch (error) {
       console.error('Error deleting agency:', error);
@@ -345,7 +345,7 @@ const DeliveryManagement = () => {
   const handleAssignOrder = async (orderId, agentId) => {
     const trackingId = orderId;
     try {
-      const response = await axios.post(`https://recycle-backend-lflh.onrender.com/deliveryTracking/${orderId}`, {
+      const response = await axios.post(`https://recycle-backend-apao.onrender.com/deliveryTracking/${orderId}`, {
         trackingId: trackingId,
         deliveryAgentId: agentId,
         status: 'Dispatched'
@@ -362,7 +362,7 @@ const DeliveryManagement = () => {
 
   const handleAssignPickup = async (trackingId, agentId) => {
     try {
-      const response = await axios.put(`https://recycle-backend-lflh.onrender.com/api/pickuptracking/${trackingId}`, {
+      const response = await axios.put(`https://recycle-backend-apao.onrender.com/api/pickuptracking/${trackingId}`, {
         trackingId: trackingId,
         deliveryAgentId: agentId,
         status: 'In Progress'
@@ -391,7 +391,7 @@ const DeliveryManagement = () => {
         ...data,
         loginCredentials: [{ username: agentFormData.username, password: agentFormData.password }],
       };
-      const response = await axios.post('https://recycle-backend-lflh.onrender.com/api/deliveryAgents', {
+      const response = await axios.post('https://recycle-backend-apao.onrender.com/api/deliveryAgents', {
         id,
         ...agentData,
       });
@@ -423,7 +423,7 @@ const DeliveryManagement = () => {
     try {
       const { id, ...data } = agencyFormData;
       data.serviceAreas = data.serviceAreas.split(',').map((area) => area.trim());
-      const response = await axios.post('https://recycle-backend-lflh.onrender.com/api/deliveryAgencies', {
+      const response = await axios.post('https://recycle-backend-apao.onrender.com/api/deliveryAgencies', {
         id,
         ...data,
       });

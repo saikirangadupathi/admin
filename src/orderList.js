@@ -35,7 +35,7 @@ const OrderList = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`https://recycle-backend-lflh.onrender.com/getreCommerceOrders`);
+      const response = await axios.get(`https://recycle-backend-apao.onrender.com/getreCommerceOrders`);
       console.log('API Response:', response.data);
       const data = response.data.orderslist;
       const orders = Array.isArray(data) ? data.map(order => {
@@ -87,8 +87,8 @@ const OrderList = () => {
 
   const fetchInventoryLocations = async () => {
     try {
-      const eCommerceResponse = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/e_commerce');
-      const bothResponse = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/both');
+      const eCommerceResponse = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/e_commerce');
+      const bothResponse = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/both');
       
       const combinedInventory = [...eCommerceResponse.data, ...bothResponse.data];
       setInventoryLocations(combinedInventory.map(inv => ({
@@ -158,7 +158,7 @@ const OrderList = () => {
         const deliveryAgentId = "agent123"; // Example delivery agent ID, replace with actual value
         const customerId = order.customerId; // Example customer ID, replace with actual value
 
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/startDelivery', {
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/startDelivery', {
           id: order.id,
           status: 'pending'
         });
@@ -171,7 +171,7 @@ const OrderList = () => {
             ord.id === order.id ? { ...ord, status: 'pending' } : ord
           ));
           console.log('Processed location:', order.location.lat, order.location.lng);
-          const trackingResponse = await axios.post('https://recycle-backend-lflh.onrender.com/api/deliveryTracking', {
+          const trackingResponse = await axios.post('https://recycle-backend-apao.onrender.com/api/deliveryTracking', {
             trackingId:generateTrackingId(),
             package: {
               packageId: order.id,
@@ -213,7 +213,7 @@ const OrderList = () => {
   const handleCompleteOrder = async (updatedItems) => {
     if (selectedOrder) {
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/completeorder', {
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/completeorder', {
           id: selectedOrder.id,
           status: 'completed',
           items: updatedItems
@@ -238,7 +238,7 @@ const OrderList = () => {
 
   const fetchCoupons = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/getPurchasedVouchers');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/getPurchasedVouchers');
       setCoupons(response.data.vouchers);
     } catch (error) {
       console.error("Error fetching coupons:", error);

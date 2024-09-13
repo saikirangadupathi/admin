@@ -29,10 +29,10 @@ const InventoryManagementPage = () => {
   const fetchData = async () => {
     try {
       // Fetch inventory data from the API
-      const inventoryResponse = await axios.get('https://recycle-backend-lflh.onrender.com/api/products');
+      const inventoryResponse = await axios.get('https://recycle-backend-apao.onrender.com/api/products');
   
       // Fetch delivery tracking data from the API
-      const deliveryTrackingResponse = await axios.get('https://recycle-backend-lflh.onrender.com/api/deliveryTracking');
+      const deliveryTrackingResponse = await axios.get('https://recycle-backend-apao.onrender.com/api/deliveryTracking');
       
       const ordersResponse = deliveryTrackingResponse.data.map(tracking => ({
         trackingId: tracking.trackingId,
@@ -64,11 +64,11 @@ const InventoryManagementPage = () => {
       };
   
       // Fetch eCommerce inventories
-      const eCommerceInventoriesResponse = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/e_commerce');
+      const eCommerceInventoriesResponse = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/e_commerce');
       setECommerceInventories(eCommerceInventoriesResponse.data);
   
       // Fetch both type inventories
-      const bothInventoriesResponse = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/both');
+      const bothInventoriesResponse = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/both');
       setBothInventories(bothInventoriesResponse.data);
   
       setInventoryData(inventoryResponse.data);

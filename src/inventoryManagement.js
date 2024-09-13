@@ -36,8 +36,8 @@ const Inventory = () => {
   useEffect(() => {
     const fetchInventories = async () => {
       try {
-        const responseScrap = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/scrap');
-        const responseBoth = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/both');
+        const responseScrap = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/scrap');
+        const responseBoth = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/both');
         const inventories = [...responseScrap.data, ...responseBoth.data];
         setInventoryNames(inventories.map(inventory => ({ id: inventory.id, name: inventory.name })));
 
@@ -60,7 +60,7 @@ const Inventory = () => {
 
   const fetchPickupTracking = async (selectedInventoryId) => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/pickuptracking');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/api/pickuptracking');
       const pickupTracking = response.data;
   
       let approvedCount = 0;
@@ -103,7 +103,7 @@ const Inventory = () => {
   const handleCompleteOrder = async (trackingId) => {
     try {
       // Make the API call to update the status to "Completed"
-      const response = await axios.put(`https://recycle-backend-lflh.onrender.com/api/pickuptracking/${trackingId}`, {
+      const response = await axios.put(`https://recycle-backend-apao.onrender.com/api/pickuptracking/${trackingId}`, {
         status: 'Completed',
       });
   
@@ -125,7 +125,7 @@ const Inventory = () => {
   const handleInventoryChange = async (event) => {
     const inventoryId = event.target.value;
     try {
-      const response = await axios.get(`https://recycle-backend-lflh.onrender.com/api/inventoryid/${inventoryId}`);
+      const response = await axios.get(`https://recycle-backend-apao.onrender.com/api/inventoryid/${inventoryId}`);
       const selectedInventory = response.data;
       setSelectedInventory(selectedInventory);
       setScrapItems(selectedInventory.scrap.items);
@@ -138,7 +138,7 @@ const Inventory = () => {
   const handleAssignPrice = async (tracking) => {
     try {
       // Fetch order by tracking Id (which maps to order Id)
-      const response = await axios.get(`https://recycle-backend-lflh.onrender.com/getorderbyid/${tracking.pickupInfo.pickupId}`);
+      const response = await axios.get(`https://recycle-backend-apao.onrender.com/getorderbyid/${tracking.pickupInfo.pickupId}`);
       const order = response.data;
       console.log('result..',order);
       if (order) {
@@ -154,7 +154,7 @@ const Inventory = () => {
   const handleSaveAssignedPrice = async (updatedItems) => {
     if (selectedOrder) {
       try {
-        const response = await axios.put('https://recycle-backend-lflh.onrender.com/completepickup', {
+        const response = await axios.put('https://recycle-backend-apao.onrender.com/completepickup', {
           id: selectedOrder.Id,
           status: 'Completed', 
           items: updatedItems, // Save the updated items with prices
@@ -690,13 +690,13 @@ export default Inventory;
 //   useEffect(() => {
 //     const fetchCompletedOrders = async () => {
 //       try {
-//         const response = await axios.get('https://recycle-backend-lflh.onrender.com/getorders');
+//         const response = await axios.get('https://recycle-backend-apao.onrender.com/getorders');
 //         const completedOrders = response.data.orderslist.filter(order => order.status === 'completed');
 //         setCompletedOrders(completedOrders);
 //         processCompletedOrders(completedOrders);
 
 //         if (completedOrders.length > 0) {
-//           await axios.post('https://recycle-backend-lflh.onrender.com/addcompletedorders', { orders: completedOrders });
+//           await axios.post('https://recycle-backend-apao.onrender.com/addcompletedorders', { orders: completedOrders });
 //         }
 //       } catch (error) {
 //         console.error('Error fetching completed orders:', error);
@@ -705,7 +705,7 @@ export default Inventory;
 
 //     const fetchInventoryData = async () => {
 //       try {
-//         const response = await axios.get('https://recycle-backend-lflh.onrender.com/getinventory');
+//         const response = await axios.get('https://recycle-backend-apao.onrender.com/getinventory');
 //         setInventoryData(response.data.inventory);
 //       } catch (error) {
 //         console.error('Error fetching inventory data:', error);

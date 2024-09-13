@@ -23,6 +23,10 @@ const ProductList = () => {
   const [attributeMaterial, setAttributeMaterial] = useState('');
   const [attributeDimensions, setAttributeDimensions] = useState('');
   const [attributeVariants, setAttributeVariants] = useState([]);
+  const [attributeKeywords, setAttributeKeywords] = useState([]);
+
+  const [keywordInput, setKeywordInput] = useState(''); // State to hold the input value temporarily
+
   const [shippingDimensions, setShippingDimensions] = useState('');
   const [shippingOptionsStandard, setShippingOptionsStandard] = useState(false);
   const [shippingOptionsExpress, setShippingOptionsExpress] = useState(false);
@@ -76,7 +80,7 @@ const ProductList = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/products');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/api/products');
       setFilteredProducts(response.data);
       console.log('filtered..', response.data);
     } catch (error) {
@@ -114,8 +118,9 @@ const ProductList = () => {
         color: attributeColor,
         material: attributeMaterial,
         dimensions: attributeDimensions,
-        variants: attributeVariants
+        variants: attributeVariants,
       },
+      keywords: attributeKeywords,
       shipping: {
         weight: productWeight,
         dimensions: shippingDimensions,
@@ -143,11 +148,11 @@ const ProductList = () => {
     try {
       let response;
       if (selectedProductId) {
-        response = await axios.put(`https://recycle-backend-lflh.onrender.com/api/products/${selectedProductId}`, newProduct);
+        response = await axios.put(`https://recycle-backend-apao.onrender.com/api/products/${selectedProductId}`, newProduct);
         setUploadMessage('Product updated successfully!');
         setSelectedProductId(null);
       } else {
-        response = await axios.post('https://recycle-backend-lflh.onrender.com/api/products', newProduct);
+        response = await axios.post('https://recycle-backend-apao.onrender.com/api/products', newProduct);
         setUploadMessage(response.data.message);
       }
       setImageUploadSuccess(false);
@@ -178,6 +183,7 @@ const ProductList = () => {
     setAttributeMaterial('');
     setAttributeDimensions('');
     setAttributeVariants([]);
+    setAttributeKeywords([]);
     setShippingDimensions('');
     setShippingOptionsStandard(false);
     setShippingOptionsExpress(false);
@@ -226,6 +232,7 @@ const ProductList = () => {
     setAttributeMaterial(product.attributes?.material || '');
     setAttributeDimensions(product.attributes?.dimensions || '');
     setAttributeVariants(product.attributes?.variants || []);
+    setAttributeKeywords(product.keywords || []);
     setShippingDimensions(product.shipping?.dimensions || '');
     setShippingOptionsStandard(product.shipping?.options?.standard || false);
     setShippingOptionsExpress(product.shipping?.options?.express || false);
@@ -245,7 +252,7 @@ const ProductList = () => {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      await axios.delete(`https://recycle-backend-lflh.onrender.com/api/products/${productId}`);
+      await axios.delete(`https://recycle-backend-apao.onrender.com/api/products/${productId}`);
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -297,7 +304,7 @@ const ProductList = () => {
       const formData = new FormData();
       formData.append('image', file);
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/upload', formData);
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/upload', formData);
         return response.data.imageUrl;
       } catch (error) {
         console.error('Error uploading the file', error);
@@ -594,8 +601,21 @@ const ProductList = () => {
     borderRadius: '4px',
     marginBottom: '20px',
   };
-  
 
+
+  const removeKeywordButtonStyle = {
+    marginLeft: '10px',
+    padding: '2px 5px',
+    backgroundColor: 'whitesmoke',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '12px',
+  };
+
+
+  
   const labelStyle = {
     margin: '20px',
     display: 'block',
@@ -673,6 +693,131 @@ const ProductList = () => {
     marginBottom: '20px',
   };
 
+  const addButtonStyle2 = {
+    padding: '5px 10px',
+    background: '#28a745',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+  };
+  
+  const clearButtonStyle = {
+    padding: '5px 10px',
+    background: '#dc3545',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+  };
+  
+  const addedKeywordsContainerStyle = {
+    marginTop: '20px',
+  };
+  
+  const addedKeywordsStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+    marginTop: '10px',
+  };
+  
+  const keywordTagStyle = {
+    padding: '5px 10px',
+    backgroundColor: '#e0e0e0',
+    borderRadius: '4px',
+    fontSize: '14px',
+    color: '#333',
+  };
+  
+
+
+  const productDetailsHeaderStyle = {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+    textAlign: 'center',
+    color: '#333',
+    letterSpacing: '1.2px',
+  };
+  
+  const upgradedProductListStyle = {
+    listStyleType: 'none',
+    padding: '0',
+    margin: '0',
+    backgroundColor: '#f9f9f9',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    fontSize: '16px',
+    color: '#555',
+    lineHeight: '1.8',
+  };
+  
+  const upgradedImageContainerStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '20px',
+    gap: '10px',
+    flexWrap: 'wrap',
+  };
+  
+  const upgradedProductImageStyle = {
+    width: '120px',
+    height: '120px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+  };
+  
+
+  const detailsContainerStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    gap: '20px',
+    padding: '20px',
+    backgroundColor: '#f4f4f9',
+    borderRadius: '10px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+  };
+  
+  const detailCardStyle = {
+    backgroundColor: '#fff',
+    padding: '15px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+    width: '30%',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: '16px',
+    color: '#555',
+    lineHeight: '1.5',
+  };
+  
+  const upgradedCloseButtonStyle = {
+    display: 'block',
+    margin: '20px auto',
+    padding: '12px 20px',
+    backgroundColor: '#ff4757',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    transition: 'background-color 0.3s ease',
+  };
+  
+  upgradedCloseButtonStyle[':hover'] = {
+    backgroundColor: '#e84118',
+  };
+  
+  
+
   return (
     <div style={mainContainerStyle}>
       <header style={headerStyle}>
@@ -693,17 +838,17 @@ const ProductList = () => {
           <div style={dashboardStyle}>
             <div style={dashboardItemStyle}>
               <h3>Website Sales</h3>
-              <p>$674,347.12</p>
+              <p>₹ 674,347.12</p>
               <p>21k orders</p>
             </div>
             <div style={dashboardItemStyle}>
               <h3>Discount</h3>
-              <p>$14,235.12</p>
+              <p>₹ 14,235.12</p>
               <p>6k orders</p>
             </div>
             <div style={dashboardItemStyle}>
               <h3>Affiliate</h3>
-              <p>$8,345.23</p>
+              <p>₹ 8,345.23</p>
               <p>150 orders</p>
             </div>
           </div>
@@ -747,7 +892,7 @@ const ProductList = () => {
                   <h4 style={productTitleStyle}>{product.name}</h4>
                   <ul style={productListStyle}>
                     <li style={productListItemStyle}>Category: {product.category}</li>
-                    <li style={productListItemStyle}>Price: ${product.price}</li>
+                    <li style={productListItemStyle}>Price: ₹ {product.price}</li>
                     <li style={productListItemStyle}>Stock: {product.stock}</li>
                   </ul>
                 </div>
@@ -779,6 +924,80 @@ const ProductList = () => {
                     breakClassName={paginationItemStyle}
                     breakLinkClassName={paginationLinkStyle}
                 />
+
+
+          {(viewProduct || showUploadContainer) && (
+            <>
+              <div style={overlayStyle} onClick={() => {
+                setViewProduct(null);
+                setShowUploadContainer(false);
+              }}></div>
+              <div style={modalStyle}>
+                {viewProduct && (
+                  <>
+                    <h3 style={productDetailsHeaderStyle}>Product Details</h3>
+                    <div style={detailsContainerStyle}>
+                            <div style={detailCardStyle}>
+                              <strong>Name:</strong> {viewProduct.name}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Category:</strong> {viewProduct.category}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Price:</strong> ₹ {viewProduct.price}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Eco-Friendly:</strong> {viewProduct.ecoFriendly ? 'Yes' : 'No'}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Green Points:</strong> {viewProduct.greenPoints}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Discount:</strong> {viewProduct.discount}%
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Stock:</strong> {viewProduct.stock}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Weight:</strong> {viewProduct.weight}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Third-Party Seller:</strong> {viewProduct.thirdPartySeller}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Delivery Tracking:</strong> {viewProduct.deliveryTracking}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Views:</strong> {viewProduct.performance?.views || 0}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Conversion Rates:</strong> {viewProduct.performance?.conversionRates || 0}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Sales Data:</strong> {viewProduct.performance?.salesData || 0}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Product Details:</strong> {viewProduct.description[0]}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Product Specification:</strong> {viewProduct.description[1]}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>About the Brand:</strong> {viewProduct.description[2]}
+                            </div>
+                            <div style={detailCardStyle}>
+                              <strong>Additional Details:</strong> {viewProduct.description[3]}
+                            </div>
+                          </div>
+
+                      <div style={upgradedImageContainerStyle}>
+                        {viewProduct.images.map((img, index) => (
+                          <img key={index} src={img} alt={viewProduct.name} style={upgradedProductImageStyle} />
+                        ))}
+                      </div>
+                      <button onClick={() => setViewProduct(null)} style={upgradedCloseButtonStyle}>Close</button>
+                  </>
+          )}
 
           {showUploadContainer && (
             <>
@@ -895,58 +1114,112 @@ const ProductList = () => {
                 </div>
                 <h4>Attributes</h4>
                 <div style={descriptionContainerStyle}>
-                  
-                  <label style={labelStyle}>
-                    Size:
-                    <input
-                      type="text"
-                      placeholder="Size"
-                      value={attributeSize}
-                      onChange={(e) => setAttributeSize(e.target.value)}
-                      style={{ ...uploadInputStyle, width: '200px' }}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Color:
-                    <input
-                      type="text"
-                      placeholder="Color"
-                      value={attributeColor}
-                      onChange={(e) => setAttributeColor(e.target.value)}
-                      style={{ ...uploadInputStyle, width: '200px' }}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Material:
-                    <input
-                      type="text"
-                      placeholder="Material"
-                      value={attributeMaterial}
-                      onChange={(e) => setAttributeMaterial(e.target.value)}
-                      style={{ ...uploadInputStyle, width: '200px' }}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Dimensions:
-                    <input
-                      type="text"
-                      placeholder="Dimensions"
-                      value={attributeDimensions}
-                      onChange={(e) => setAttributeDimensions(e.target.value)}
-                      style={{ ...uploadInputStyle, width: '200px' }}
-                    />
-                  </label>
-                  <label style={labelStyle}>
-                    Variants:
-                    <input
-                      type="text"
-                      placeholder="Variants (comma-separated)"
-                      value={attributeVariants.join(', ')}
-                      onChange={(e) => setAttributeVariants(e.target.value.split(',').map(variant => variant.trim()))}
-                      style={{ ...uploadInputStyle, width: '200px' }}
-                    />
-                  </label>
-                </div>
+                      <label style={labelStyle}>
+                        Size:
+                        <input
+                          type="text"
+                          placeholder="Size"
+                          value={attributeSize}
+                          onChange={(e) => setAttributeSize(e.target.value)}
+                          style={{ ...uploadInputStyle, width: '200px' }}
+                        />
+                      </label>
+                      <label style={labelStyle}>
+                        Color:
+                        <input
+                          type="text"
+                          placeholder="Color"
+                          value={attributeColor}
+                          onChange={(e) => setAttributeColor(e.target.value)}
+                          style={{ ...uploadInputStyle, width: '200px' }}
+                        />
+                      </label>
+                      <label style={labelStyle}>
+                        Material:
+                        <input
+                          type="text"
+                          placeholder="Material"
+                          value={attributeMaterial}
+                          onChange={(e) => setAttributeMaterial(e.target.value)}
+                          style={{ ...uploadInputStyle, width: '200px' }}
+                        />
+                      </label>
+                      <label style={labelStyle}>
+                        Dimensions:
+                        <input
+                          type="text"
+                          placeholder="Dimensions"
+                          value={attributeDimensions}
+                          onChange={(e) => setAttributeDimensions(e.target.value)}
+                          style={{ ...uploadInputStyle, width: '200px' }}
+                        />
+                      </label>
+                      <label style={labelStyle}>
+                        Variants:
+                        <input
+                          type="text"
+                          placeholder="Variants (comma-separated)"
+                          value={attributeVariants.join(', ')}
+                          onChange={(e) => setAttributeVariants(e.target.value.split(',').map(variant => variant.trim()))}
+                          style={{ ...uploadInputStyle, width: '200px' }}
+                        />
+                      </label>
+
+                      <label style={labelStyle}>
+                            Keywords (comma-separated):
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <input
+                                type="text"
+                                placeholder="Enter keywords"
+                                value={keywordInput} 
+                                onChange={(e) => setKeywordInput(e.target.value)} 
+                                style={{ ...uploadInputStyle, width: '200px' }}
+                              />
+                              <button
+                                style={addButtonStyle}
+                                onClick={() => {
+                                  const inputKeywords = keywordInput.split(',').map(kw => kw.trim()).filter(kw => kw); // Split and trim input
+                                  const newKeywords = [...attributeKeywords, ...inputKeywords].filter((kw, index, self) => self.indexOf(kw) === index); // Remove duplicates
+                                  setAttributeKeywords(newKeywords); 
+                                  setKeywordInput('');
+                                }}
+                              >
+                                Add
+                              </button>
+                              <button
+                                style={clearButtonStyle}
+                                onClick={() => setAttributeKeywords([])}
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          </label>
+
+                          <div style={addedKeywordsContainerStyle}>
+                              <h4>Added Keywords:</h4>
+                              <div style={addedKeywordsStyle}>
+                                {attributeKeywords.length > 0 ? (
+                                  attributeKeywords.map((keyword, index) => (
+                                    <div key={index} style={keywordTagStyle}>
+                                      {keyword}
+                                      <button
+                                        style={removeKeywordButtonStyle}
+                                        onClick={() => {
+                                          const updatedKeywords = attributeKeywords.filter((_, i) => i !== index);
+                                          setAttributeKeywords(updatedKeywords);
+                                        }}
+                                      >
+                                        ❌
+                                      </button>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p>No keywords added.</p>
+                                )}
+                              </div>
+                            </div>
+                    </div>
+
                 <h4>Shipping</h4>
                 <div style={descriptionContainerStyle}>
                   <label style={labelStyle}>
@@ -1113,39 +1386,10 @@ const ProductList = () => {
               </div>
             </>
           )}
-          {viewProduct && (
-            <>
-              <div style={overlayStyle} onClick={closeViewProduct}></div>
-              <div style={modalStyle}>
-                <h3>Product Details</h3>
-                <ul style={productListStyle}>
-                  <li><strong>Name:</strong> {viewProduct.name}</li>
-                  <li><strong>Category:</strong> {viewProduct.category}</li>
-                  <li><strong>Price:</strong> ${viewProduct.price}</li>
-                  <li><strong>Eco-Friendly:</strong> {viewProduct.ecoFriendly ? 'Yes' : 'No'}</li>
-                  <li><strong>Green Points:</strong> {viewProduct.greenPoints}</li>
-                  <li><strong>Discount:</strong> {viewProduct.discount}%</li>
-                  <li><strong>Stock:</strong> {viewProduct.stock}</li>
-                  <li><strong>Weight:</strong> {viewProduct.weight}</li>
-                  <li><strong>Third-Party Seller:</strong> {viewProduct.thirdPartySeller}</li>
-                  <li><strong>Delivery Tracking:</strong> {viewProduct.deliveryTracking}</li>
-                  <li><strong>Views:</strong> {viewProduct.performance?.views || 0}</li>
-                  <li><strong>Conversion Rates:</strong> {viewProduct.performance?.conversionRates || 0}</li>
-                  <li><strong>Sales Data:</strong> {viewProduct.performance?.salesData || 0}</li>
-                  <li><strong>Product Details:</strong> {viewProduct.description[0]}</li>
-                  <li><strong>Product Specification:</strong> {viewProduct.description[1]}</li>
-                  <li><strong>About the Brand:</strong> {viewProduct.description[2]}</li>
-                  <li><strong>Additional Details:</strong> {viewProduct.description[3]}</li>
-                </ul>
-                <div style={imageContainerStyle}>
-                  {viewProduct.images.map((img, index) => (
-                    <img key={index} src={img} alt={viewProduct.name} style={productImageStyle} />
-                  ))}
-                </div>
-                <button onClick={closeViewProduct} style={editButtonStyle}>Close</button>
-              </div>
-            </>
-          )}
+          </div>
+        </>
+      )}
+ 
         </div>
       </div>
     </div>

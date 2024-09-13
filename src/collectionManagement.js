@@ -12,6 +12,12 @@ import Inventory from './inventory.png'
 import { useDropzone } from 'react-dropzone'
 import scrapBuyerIcon from './scrapBuyerIcon.png'
 
+import { Bar, Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
+
 const CollectionManagement = () => {
   const [date, setDate] = useState(new Date());
   const [collections, setCollections] = useState([]);
@@ -76,12 +82,18 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
 
 
+  // Add this state to manage the selected scrap buyer performance details
+const [selectedScrapBuyerPerformance, setSelectedScrapBuyerPerformance] = useState(null);
 
 
-  const handleViewScrapBuyer = (buyer) => {
-    setSelectedScrapBuyer(buyer);
-    setIsViewModalOpen(true);
-  };
+
+
+
+  // Modify this function to set the performance data
+const handleViewScrapBuyerPerformance = (buyer) => {
+  setSelectedScrapBuyerPerformance(buyer);
+};
+
   
 
   const handleEditScrapBuyer = (buyer) => {
@@ -92,7 +104,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
 
   const handleUpdateScrapBuyer = async (updatedData) => {
     try {
-      const response = await axios.put(`https://recycle-backend-lflh.onrender.com/api/scrap-buyers/${selectedScrapBuyer.scrapBuyerId}`, updatedData);
+      const response = await axios.put(`https://recycle-backend-apao.onrender.com/api/scrap-buyers/${selectedScrapBuyer.scrapBuyerId}`, updatedData);
       setIsEditModalOpen(false);
       fetchScrapBuyers(); // Refresh the list
     } catch (error) {
@@ -103,7 +115,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
 
   const handleDeleteScrapBuyer = async (scrapBuyerId) => {
     try {
-      await axios.delete(`https://recycle-backend-lflh.onrender.com/api/scrap-buyers/${scrapBuyerId}`);
+      await axios.delete(`https://recycle-backend-apao.onrender.com/api/scrap-buyers/${scrapBuyerId}`);
       fetchScrapBuyers(); // Refresh the list
     } catch (error) {
       console.error('Error deleting scrap buyer:', error);
@@ -116,7 +128,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
 
   const fetchScrapBuyers = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/scrap-buyers'); // Adjust URL as per your backend setup
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/api/scrap-buyers'); // Adjust URL as per your backend setup
       setScrapBuyers(response.data);
     } catch (error) {
       console.error('Error fetching scrap buyers:', error);
@@ -151,7 +163,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
   const fetchCollectionsByDate = async (selectedDate) => {
     try {
       const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
-      const response = await axios.get(`https://recycle-backend-lflh.onrender.com/getorders?date=${formattedDate}`);
+      const response = await axios.get(`https://recycle-backend-apao.onrender.com/getorders?date=${formattedDate}`);
       const data = response.data.orderslist;
       
       const collections = Array.isArray(data) ? data.map(order => {
@@ -185,8 +197,8 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
 
   const fetchScrapInventories = async () => {
     try {
-      const responseScrap = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/scrap');
-      const responseBoth = await axios.get('https://recycle-backend-lflh.onrender.com/api/inventories/type/both');
+      const responseScrap = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/scrap');
+      const responseBoth = await axios.get('https://recycle-backend-apao.onrender.com/api/inventories/type/both');
       const inventories = [...responseScrap.data, ...responseBoth.data];
 
       // setScrapInventories(inventories);
@@ -205,7 +217,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
   useEffect(() => {
     const fetchInitialCollections = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/getorders');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/getorders');
         const data = response.data.orderslist;
         const collections = Array.isArray(data) ? data.map(order => {
           const location = order.location || { latitude: 0, longitude: 0, address: '' };
@@ -242,7 +254,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
 
     const fetchRecyclingMaterials = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/recycling-materials');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/recycling-materials');
         setRecyclingMaterials(response.data);
         console.log('recycling..', response.data);
       } catch (error) {
@@ -401,7 +413,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
   const handleStartPickup = async (collection) => {
     if (collection) {
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/startpickup', {
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/startpickup', {
           id: collection.id,
           status: 'inProgress'
         });
@@ -423,14 +435,14 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
   const handleApprovePickup = async (updatedItems) => {
     if (selectedCollection) {
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/approvepickup', {
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/approvepickup', {
           id: selectedCollection.id,
           status: 'pickupApproved',
           items: updatedItems,
         });
   
         if (response.status === 200) {
-          const trackingResponse = await axios.post('https://recycle-backend-lflh.onrender.com/api/pickuptracking', {
+          const trackingResponse = await axios.post('https://recycle-backend-apao.onrender.com/api/pickuptracking', {
             pickupInfo: {
               pickupId: selectedCollection.id,
               customerId: selectedCollection.userId,
@@ -464,7 +476,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
     if (selectedCollection) {
       try {
         console.log('itemss...', updatedItems)
-        const response = await axios.put('https://recycle-backend-lflh.onrender.com/completepickup', {
+        const response = await axios.put('https://recycle-backend-apao.onrender.com/completepickup', {
           id: selectedCollection.id,
           status: 'completed',
           items: updatedItems
@@ -496,18 +508,18 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
       let response;
       if (editingItem) {
         // Update existing material
-        response = await axios.put(`https://recycle-backend-lflh.onrender.com/api/recycling-materials/${editingItem.itemId}`, newMaterial);
+        response = await axios.put(`https://recycle-backend-apao.onrender.com/api/recycling-materials/${editingItem.itemId}`, newMaterial);
       } else {
         // Add new material
         const newMaterialData = { [category]: [newMaterial] };
-        response = await axios.post('https://recycle-backend-lflh.onrender.com/api/upload-recycling-materials', newMaterialData);
+        response = await axios.post('https://recycle-backend-apao.onrender.com/api/upload-recycling-materials', newMaterialData);
       }
   
       setUploadMessage(response.data.message);
       setName('');
       setPrice('');
       setCategory('');
-      const fetchResponse = await axios.get('https://recycle-backend-lflh.onrender.com/api/recycling-materials');
+      const fetchResponse = await axios.get('https://recycle-backend-apao.onrender.com/api/recycling-materials');
       setRecyclingMaterials(fetchResponse.data);
       setEditingItem(null);
       setValidUrls([]);
@@ -569,7 +581,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
       const formData = new FormData();
       formData.append('image', file);
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/upload', formData);
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/upload', formData);
         return response.data.imageUrl;
       } catch (error) {
         console.error('Error uploading the file', error);
@@ -635,7 +647,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
     };
   
     try {
-      const response = await axios.post('https://recycle-backend-lflh.onrender.com/api/scrap-buyers', newScrapBuyer);
+      const response = await axios.post('https://recycle-backend-apao.onrender.com/api/scrap-buyers', newScrapBuyer);
       setUploadMessages(response.data.message);
       setScrapBuyerId('');
       setNames('');
@@ -654,6 +666,10 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
       setUploadMessage('Error uploading scrap buyer');
     }
   };
+
+
+
+  
   
   
   
@@ -686,7 +702,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
               >
                 Third Party Scrap Buyers
               </button>
-            </div>
+          </div>
 
           <h2>{view === 'collectionManagement' ? 'Collection Management' : 'Third Party Scrap Buyers'}</h2>
           {view === 'collectionManagement' && (
@@ -958,6 +974,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
           {view === 'scrapBuyers' && (
                   <div>
                     <div style={mapContainerStyle}>
+                    {scrapBuyers.length > 0 && (
                       <MapContainer center={currentLocation} zoom={13} style={mapInnerContainerStyle}>
                         <TileLayer
                           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -985,7 +1002,262 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
                           </Marker>
                         ))}
                       </MapContainer>
+                      )}
                     </div>
+
+                    {selectedScrapBuyerPerformance && (
+                            <div style={buyersPerformanceSectionStyle}>
+                              <h2>{selectedScrapBuyerPerformance?.name} Performance Overview</h2>
+
+                              {/* Inventory Categories and Items Volume */}
+                              <div style={chartInventoryContainerStyle}>
+                                  <div style={{ flex: 1 }}>
+                                    <h3>Inventory Categories Volume</h3>
+                                    <div style={{ width: '400px', height: '400px' }}>
+                                      <Pie
+                                        data={{
+                                          labels: selectedScrapBuyerPerformance?.inventory?.map(category => category.category) || [],
+                                          datasets: [
+                                            {
+                                              label: 'Category Volume',
+                                              data: selectedScrapBuyerPerformance?.inventory?.map(category => 
+                                                category.items?.reduce((acc, item) => acc + item.quantity, 0)
+                                              ) || [],
+                                              backgroundColor: ['#ffcc00', '#3366ff', '#33cc33', '#ff3300', '#cc99ff'], // Add more colors if needed
+                                            },
+                                          ],
+                                        }}
+                                        options={{
+                                          responsive: true,
+                                          onClick: (_, elements) => {
+                                            if (elements.length > 0) {
+                                              const categoryIndex = elements[0].index;
+                                              setSelectedCategory(selectedScrapBuyerPerformance?.inventory[categoryIndex]);
+                                            }
+                                          },
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                  {selectedCategory && (
+                                    <div style={{ flex: 1, marginLeft: '20px' }}>
+                                      <h4>{selectedCategory.category} Items Volume</h4>
+                                      <div style={{ width: '45vw', height: '400px' }}>
+                                        <Bar
+                                          data={{
+                                            labels: selectedCategory.items?.map(item => item.name) || [],
+                                            datasets: [
+                                              {
+                                                label: `${selectedCategory.category} Items Volume`,
+                                                data: selectedCategory.items?.map(item => item.quantity) || [],
+                                                backgroundColor: '#3366ff',
+                                              },
+                                            ],
+                                          }}
+                                          options={{ responsive: true }}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                        {/* Order Status Distribution */}
+                        <div style={orderStatusContainerStyle}>
+                                <h3>Order Status Distribution</h3>
+                                <div style={cardGridStyle}>
+                                  <div style={cardStyle}>
+                                    <h4>Pending</h4>
+                                    <p>{selectedScrapBuyerPerformance?.currentOrders?.filter(order => order.status === 'Pending').length || 0}</p>
+                                  </div>
+                                  <div style={cardStyle}>
+                                    <h4>In Progress</h4>
+                                    <p>{selectedScrapBuyerPerformance?.currentOrders?.filter(order => order.status === 'inProgress').length || 0}</p>
+                                  </div>
+                                  <div style={cardStyle}>
+                                    <h4>Completed</h4>
+                                    <p>{selectedScrapBuyerPerformance?.currentOrders?.filter(order => order.status === 'completed').length || 0}</p>
+                                  </div>
+                                  <div style={cardStyle}>
+                                    <h4>Cancelled</h4>
+                                    <p>{selectedScrapBuyerPerformance?.cancelledOrders?.length || 0}</p>
+                                  </div>
+                                  <div style={cardStyle}>
+                                    <h4>Requested</h4>
+                                    <p>{selectedScrapBuyerPerformance?.requestedOrders?.filter(order => order.status === 'accepted').length || 0}</p>
+                                  </div>
+                                </div>
+                        </div>
+
+                    {/* Pie Chart: Materials Accepted
+                    <div style={chartContainerStyle}>
+                      <h3>Accepted Materials</h3>
+                      <Pie
+                        data={{
+                          labels: selectedScrapBuyerPerformance?.acceptedMaterials?.map(material => material.category) || [],
+                          datasets: [
+                            {
+                              data: selectedScrapBuyerPerformance?.acceptedMaterials?.map(material =>
+                                material.items?.reduce((acc, item) => acc + item.quantity, 0)
+                              ) || [],
+                              backgroundColor: ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99'],
+                            },
+                          ],
+                        }}
+                        options={{ responsive: true }}
+                      />
+                    </div> */}
+                
+                  {/* Additional Info: Contact, Business PAN ID, Operational Hours */}
+                  <div style={additionalInfoContainerStyle}>
+                    <h3 style={infoTitleStyle}>Contact Information</h3>
+                    <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Phone:</strong> {selectedScrapBuyerPerformance?.contact?.phone}</p>
+                    <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Email:</strong> {selectedScrapBuyerPerformance?.contact?.email}</p>
+                    <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Business PAN ID:</strong> {selectedScrapBuyerPerformance?.businessPanId}</p>
+                    <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Operational Hours:</strong> {selectedScrapBuyerPerformance?.operationalHours}</p>
+                  </div>
+
+                                        {/* Reviews */}
+                                        <div style={additionalInfoContainerStyle}>
+                                          <h3 style={infoTitleStyle}>Platform Rating: {selectedScrapBuyerPerformance?.platformRating}/5</h3>
+                                          <ul style={infoListStyle}>
+                                            {selectedScrapBuyerPerformance?.reviews?.map((review, index) => (
+                                              <li key={index} style={infoListItemStyle}>
+                                                <strong style={infoListItemHighlightStyle}>{review.comment}:</strong> Rated {review.rating} stars on {new Date(review.date).toLocaleDateString()}
+                                              </li>
+                                            )) || <p style={infoTextStyle}>No reviews available.</p>}
+                                          </ul>
+                                        </div>
+
+                                        {/* Current Orders */}
+                                <div style={additionalInfoContainerStyle}>
+                                          <h3 style={infoTitleStyle}>Current Orders</h3>
+                                          {selectedScrapBuyerPerformance?.currentOrders?.length > 0 ? (
+                                            <table style={currentOrdertableStyle}>
+                                              <thead>
+                                                <tr>
+                                                  <th style={tableHeaderCellStyle}>Order ID</th>
+                                                  <th style={tableHeaderCellStyle}>Pickup Date</th>
+                                                  <th style={tableHeaderCellStyle}>Status</th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                {selectedScrapBuyerPerformance.currentOrders.map((order, index) => (
+                                                  <tr key={index}>
+                                                    <td style={tableCellStyle1}>{order.orderId}</td>
+                                                    <td style={tableCellStyle1}>{new Date(order.pickupDate).toLocaleDateString()}</td>
+                                                    <td style={tableCellStyle1}>{order.status}</td>
+                                                  </tr>
+                                                ))}
+                                              </tbody>
+                                            </table>
+                                          ) : (
+                                            <p style={infoTextStyle}>No current orders.</p>
+                                          )}
+                                </div>
+
+                                        {/* Completed Orders */}
+                                        <div style={additionalInfoContainerStyle}>
+                                            <h3 style={infoTitleStyle}>Completed Orders</h3>
+                                            <ul style={infoListStyle}>
+                                              {selectedScrapBuyerPerformance?.completedOrders?.map((order, index) => (
+                                                <li key={index} style={infoListItemStyle}>
+                                                  <strong style={infoListItemHighlightStyle}>Order ID:</strong> {order.orderId}, 
+                                                  <strong style={infoListItemHighlightStyle}> Completed Date:</strong> {new Date(order.completedDate).toLocaleDateString()}, 
+                                                  <strong style={infoListItemHighlightStyle}> Total Weight:</strong> {order.totalWeight} kg, 
+                                                  <strong style={infoListItemHighlightStyle}> Total Price:</strong> ₹{order.totalPrice}
+                                                </li>
+                                              )) || <p style={infoTextStyle}>No completed orders.</p>}
+                                            </ul>
+                                          </div>
+
+                                        {/* Cancelled Orders */}
+                                        <div style={additionalInfoContainerStyle}>
+                                          <h3 style={infoTitleStyle}>Cancelled Orders</h3>
+                                          <ul style={infoListStyle}>
+                                            {selectedScrapBuyerPerformance?.cancelledOrders?.map((order, index) => (
+                                              <li key={index} style={infoListItemStyle}>
+                                                <strong style={infoListItemHighlightStyle}>Order ID:</strong> {order.orderId}, 
+                                                <strong style={infoListItemHighlightStyle}> Cancelled Date:</strong> {new Date(order.cancelledDate).toLocaleDateString()}, 
+                                                <strong style={infoListItemHighlightStyle}> Reason:</strong> {order.reason}
+                                              </li>
+                                            )) || <p style={infoTextStyle}>No cancelled orders.</p>}
+                                          </ul>
+                                        </div>
+
+                                        {/* Requested Orders */}
+                                        <div style={additionalInfoContainerStyle}>
+                                          <h3 style={infoTitleStyle}>Requested Orders</h3>
+                                          <ul style={infoListStyle}>
+                                            {selectedScrapBuyerPerformance?.requestedOrders?.map((order, index) => (
+                                              <li key={index} style={infoListItemStyle}>
+                                                <strong style={infoListItemHighlightStyle}>Order ID:</strong> {order.orderId}, 
+                                                <strong style={infoListItemHighlightStyle}> Requested Date:</strong> {new Date(order.requestedDate).toLocaleDateString()}, 
+                                                <strong style={infoListItemHighlightStyle}> Status:</strong> {order.status}
+                                              </li>
+                                            )) || <p style={infoTextStyle}>No requested orders.</p>}
+                                          </ul>
+                                        </div>
+
+                                        {/* Wallet Information */}
+                                        <div style={additionalInfoContainerStyle}>
+                                          <h3 style={infoTitleStyle}>Wallet</h3>
+                                          <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Balance:</strong> ₹{selectedScrapBuyerPerformance?.wallet?.balance}</p>
+                                          <h4 style={infoTitleStyle}>Transactions</h4>
+                                          <ul style={infoListStyle}>
+                                            {selectedScrapBuyerPerformance?.wallet?.transactions?.map((transaction, index) => (
+                                              <li key={index} style={infoListItemStyle}>
+                                                <strong style={infoListItemHighlightStyle}>Date:</strong> {new Date(transaction.date).toLocaleDateString()}, 
+                                                <strong style={infoListItemHighlightStyle}> Amount:</strong> ₹{transaction.amount}, 
+                                                <strong style={infoListItemHighlightStyle}> Remarks:</strong> {transaction.remarks}
+                                              </li>
+                                            )) || <p style={infoTextStyle}>No transactions available.</p>}
+                                          </ul>
+                                        </div>
+
+                                        {/* Posted Offers */}
+                                    <div style={additionalInfoContainerStyle}>
+                                      <h3 style={infoTitleStyle}>Posted Offers</h3>
+                                      <div style={offersContainerStyle}>
+                                        {selectedScrapBuyerPerformance?.postedOffers?.map((offer, index) => (
+                                          <div key={index} style={offerCardStyle}>
+                                            <h4 style={offerTitleStyle}>Offer ID: {offer.offerId}</h4>
+                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Material Type:</strong> {offer.materialType}</p>
+                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Quantity Available:</strong> {offer.quantityAvailable}</p>
+                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Price Per Unit:</strong> ₹{offer.pricePerUnit}</p>
+                                            
+                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Description:</strong> {offer.description}</p>
+                                            
+                                            <div style={imagePreviewContainerStyle}>
+                                              {offer.images.map((image, imgIndex) => (
+                                                <img key={imgIndex} src={image} alt={`Offer Image ${imgIndex + 1}`} style={imageThumbnailStyle} />
+                                              ))}
+                                            </div>
+
+                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Views:</strong> {offer.views}</p>
+                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Status:</strong> {offer.status}</p>
+                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Posted Date:</strong> {new Date(offer.postedDate).toLocaleDateString()}</p>
+                                            
+                                            {offer.comments && offer.comments.length > 0 && (
+                                              <div style={commentsContainerStyle}>
+                                                <h4 style={commentsTitleStyle}>Comments:</h4>
+                                                <ul style={commentsListStyle}>
+                                                  {offer.comments.map((comment, commentIndex) => (
+                                                    <li key={commentIndex} style={commentItemStyle}>
+                                                      <p style={commentTextStyle}><strong>User:</strong> {comment.userId}</p>
+                                                      <p style={commentTextStyle}><strong>Comment:</strong> {comment.text}</p>
+                                                    </li>
+                                                  ))}
+                                                </ul>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )) || <p style={infoTextStyle}>No offers posted.</p>}
+                                      </div>
+                                    </div>
+                                        
+                                </div>          
+                )}
+
 
                     <div style={uploadContainerStyle}>
                       <h3>Upload Scrap Buyer</h3>
@@ -1092,7 +1364,7 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
                                       <td style={tableCellStyle1}>{buyer.serviceAreas.join(', ')}</td>
                                       <td style={tableCellStyle1}>{buyer.availableStatus ? 'Available' : 'Not Available'}</td>
                                       <td style={tableCellStyle1}>
-                                        <button style={actionButtonStyle} onClick={() => handleViewScrapBuyer(buyer)}>View</button>
+                                      <button style={actionButtonStyle} onClick={() => handleViewScrapBuyerPerformance(buyer)}>View Performance</button>
                                         <button style={actionButtonStyle} onClick={() => handleEditScrapBuyer(buyer)}>Update</button>
                                         <button style={actionButtonStyle} onClick={() => handleDeleteScrapBuyer(buyer.scrapBuyerId)}>Delete</button>
                                       </td>
@@ -1101,67 +1373,9 @@ const [updatedItemPrice, setUpdatedItemPrice] = useState("");
                                 </tbody>
                               </table>
                             </div>
+         
 
-                            {/* Modal for viewing scrap buyer details */}
-                                {isViewModalOpen && selectedScrapBuyer && (
-                                          <div style={modalOverlayStyle}>
-                                            <div style={modalContentStyle}>
-                                              <h2>Scrap Buyer Details</h2>
-                                              <p><strong>Name:</strong> {selectedScrapBuyer.name}</p>
-                                              <p><strong>Business Name:</strong> {selectedScrapBuyer.businessName}</p>
-                                              <p><strong>Contact:</strong> {selectedScrapBuyer.contact.phone}, {selectedScrapBuyer.contact.email}</p>
-                                              <p><strong>Location:</strong> Lat: {selectedScrapBuyer.location.latitude}, Lng: {selectedScrapBuyer.location.longitude}</p>
-                                              <p><strong>Address:</strong> {selectedScrapBuyer.location.address}</p>
-                                              <p><strong>Service Areas:</strong> {selectedScrapBuyer.serviceAreas.join(', ')}</p>
-                                              <p><strong>Status:</strong> {selectedScrapBuyer.availableStatus ? 'Available' : 'Not Available'}</p>
-
-                                              {/* Accepted Materials Category Dropdown */}
-                                              <h3>Accepted Materials</h3>
-                                              <select
-                                                style={uploadInputStyle}
-                                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                                value={selectedCategory}
-                                              >
-                                                <option value="">Select a category</option>
-                                                {selectedScrapBuyer.acceptedMaterials.map((material, index) => (
-                                                  <option key={index} value={index}>
-                                                    {material.category}
-                                                  </option>
-                                                ))}
-                                              </select>
-
-                                              {/* Close button */}
-                                              <button style={closeButtonStyle} onClick={() => setIsViewModalOpen(false)}>Close</button>
-                                            </div>
-
-                                            {/* Small modal to display items of the selected category */}
-                                            {selectedCategory !== "" && (
-                                              
-                                                  <div style={itemModalStyle}>
-                                                    <button
-                                                            style={nestedModalCloseButtonStyle}
-                                                            onClick={() => setSelectedCategory("")} // Reset the selected category to close the modal
-                                                          >
-                                                            &times;
-                                                      </button>
-                                                    <h4>Items in {selectedScrapBuyer.acceptedMaterials[selectedCategory].category}</h4>
-                                                    <ul style={itemListStyle}>
-                                                      {selectedScrapBuyer.acceptedMaterials[selectedCategory].items.map((item, index) => (
-                                                        <li key={index} style={itemStyle}>
-                                                          <span style={itemNameStyle}>{item.name}</span>
-                                                          <span style={itemPriceStyle}>₹{item.buyerPrice}/kg</span>
-                                                        </li>
-                                                      ))}
-                                                    </ul>
-                                                  </div>
-                                                )}
-                                          </div>
-                                        )}
-
-
-
-                            {/* Modal for updating scrap buyer details */}
-                            {isEditModalOpen && selectedScrapBuyer && (
+                        {isEditModalOpen && selectedScrapBuyer && (
                               <div style={modalOverlayStyleLarge}>
                                 <div style={modalContentStyleLarge}>
                                   <h2>Update Scrap Buyer</h2>
@@ -1689,7 +1903,7 @@ const mapStyle = {
 };
 
 const mapContainerStyle = {
-  height: '300px',
+  height: '500px',
   position: 'relative',
   marginBottom: '50px',
 };
@@ -1780,6 +1994,189 @@ const itemPriceStyle = {
   color: '#4caf50',
 };
 
+const currentOrdertableStyle = {
+  width: '100%',
+  borderCollapse: 'collapse',
+  marginTop: '15px',
+};
+
+const tableHeaderCellStyle = {
+  padding: '10px',
+  backgroundColor: '#f4f4f4',
+  borderBottom: '2px solid #ddd',
+  textAlign: 'left',
+  fontWeight: 'bold',
+  color: '#333',
+};
+
+const tableCellStyle = {
+  padding: '10px',
+  borderBottom: '1px solid #ddd',
+  color: '#555',
+};
+
+
+const buyersPerformanceSectionStyle = {
+  backgroundColor: '#ffffff',
+  borderRadius: '10px',
+  padding: '20px',
+  boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+  marginBottom: '20px',
+};
+
+const chartContainerStyle = {
+  marginTop: '20px',
+};
+
+const orderStatusContainerStyle = {
+  marginBottom: '20px',
+  backgroundColor: '#ffffff',
+  padding: '20px',
+  borderRadius: '10px',
+  boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+};
+
+const cardGridStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: '20px',
+};
+
+const cardStyle = {
+  flex: 1,
+  backgroundColor: '#f5f5f5',
+  borderRadius: '8px',
+  padding: '20px',
+  textAlign: 'center',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+};
+
+const cardTitleStyle = {
+  fontSize: '18px',
+  marginBottom: '10px',
+};
+
+const cardCountStyle = {
+  fontSize: '24px',
+  fontWeight: 'bold',
+  color: '#333',
+};
+
+
+
+const chartInventoryContainerStyle = {
+  display: 'flex',
+  flexDirection: 'row', // Aligns children in a row (side by side)
+  justifyContent: 'space-between', // Adds space between the charts
+  alignItems: 'flex-start', // Aligns items to the top
+  marginTop: '20px',
+};
+
+const additionalInfoContainerStyle = {
+  backgroundColor: '#ffffff',
+  borderRadius: '12px',
+  padding: '20px',
+  marginBottom: '20px',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+};
+
+const infoTitleStyle = {
+  fontSize: '24px',
+  fontWeight: '600',
+  color: '#333',
+  marginBottom: '15px',
+  borderBottom: '2px solid #eee',
+  paddingBottom: '10px',
+};
+
+const infoTextStyle = {
+  fontSize: '16px',
+  color: '#666',
+  marginBottom: '10px',
+};
+
+const infoListStyle = {
+  listStyleType: 'none',
+  padding: '0',
+  margin: '0',
+};
+
+const infoListItemStyle = {
+  padding: '10px',
+  borderBottom: '1px solid #eee',
+  fontSize: '16px',
+  color: '#555',
+};
+
+const infoListItemHighlightStyle = {
+  color: '#333',
+  fontWeight: '600',
+};
+
+const offersContainerStyle = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '20px',
+};
+
+const offerCardStyle = {
+  backgroundColor: '#f9f9f9',
+  borderRadius: '10px',
+  padding: '15px',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+  width: 'calc(33.333% - 20px)', // Adjust based on the number of cards per row
+  boxSizing: 'border-box',
+  marginBottom: '20px',
+};
+
+const offerTitleStyle = {
+  fontSize: '18px',
+  fontWeight: '600',
+  color: '#333',
+  marginBottom: '10px',
+};
+
+const offerTextStyle = {
+  fontSize: '14px',
+  color: '#666',
+  marginBottom: '5px',
+};
+
+const commentsContainerStyle = {
+  marginTop: '10px',
+  padding: '10px',
+  backgroundColor: '#f9f9f9',
+  borderRadius: '8px',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+};
+
+const commentsTitleStyle = {
+  fontSize: '16px',
+  fontWeight: '600',
+  color: '#333',
+  marginBottom: '5px',
+};
+
+const commentsListStyle = {
+  listStyleType: 'none',
+  padding: '0',
+  margin: '0',
+};
+
+const commentItemStyle = {
+  padding: '5px 0',
+  borderBottom: '1px solid #ddd',
+};
+
+const commentTextStyle = {
+  fontSize: '14px',
+  color: '#555',
+  marginBottom: '5px',
+};
+
+
+
+
 
 const modalOverlayStyle = {
   position: 'fixed',
@@ -1801,6 +2198,9 @@ const modalContentStyle = {
   width: '400px',
   position: 'relative',
 };
+
+
+
 
 const editModalStyle = {
   position: 'absolute',

@@ -32,7 +32,7 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/users');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/users');
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -44,7 +44,7 @@ const UserManagement = () => {
 
   const handleDelete = async (userId) => {
     try {
-      await axios.delete(`https://recycle-backend-lflh.onrender.com/api/users/${userId}`);
+      await axios.delete(`https://recycle-backend-apao.onrender.com/api/users/${userId}`);
       setUsers(users.filter(user => user.id !== userId));
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -101,7 +101,7 @@ const UserManagement = () => {
         loginCredentials: [{ username: formData.username, password: formData.password }]
       };
   
-      const response = await axios.post('https://recycle-backend-lflh.onrender.com/api/users', userData);
+      const response = await axios.post('https://recycle-backend-apao.onrender.com/api/users', userData);
       if (formData.id) {
         setUsers(users.map(user => (user.id === formData.id ? response.data : user)));
       } else {

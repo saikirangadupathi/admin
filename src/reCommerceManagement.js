@@ -112,7 +112,7 @@ const ReCommerceOrderManagement = () => {
 
   const fetchSellers = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/sellers');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/api/sellers');
       setSellers(response.data);
     } catch (error) {
       console.error("Error fetching sellers:", error);
@@ -144,7 +144,7 @@ const ReCommerceOrderManagement = () => {
   // Fetch coupons from the backend
   const fetchallCoupons = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/coupons');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/api/coupons');
       setallCoupons(response.data);
     } catch (error) {
       console.error('Error fetching coupons:', error);
@@ -160,7 +160,7 @@ const ReCommerceOrderManagement = () => {
     try {
       setDate(selectedDate);
       const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
-      const response = await axios.get(`https://recycle-backend-lflh.onrender.com/getreCommerceOrders?date=${formattedDate}`);
+      const response = await axios.get(`https://recycle-backend-apao.onrender.com/getreCommerceOrders?date=${formattedDate}`);
       const data = response.data.orderslist;
       const orders = Array.isArray(data) ? data.map(order => ({
         id: order._id,
@@ -191,7 +191,7 @@ const ReCommerceOrderManagement = () => {
 
   const fetchAllCompletedOrders = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/getAllCompletedOrders');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/getAllCompletedOrders');
       const data = response.data.orderslist;
       const completedOrders = Array.isArray(data) ? data.map(order => ({
         id: order._id,
@@ -223,7 +223,7 @@ const ReCommerceOrderManagement = () => {
 
   const fetchCoupons = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/getPurchasedVouchers');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/getPurchasedVouchers');
       setCoupons(response.data.vouchers);
     } catch (error) {
       console.error("Error fetching coupons:", error);
@@ -232,7 +232,7 @@ const ReCommerceOrderManagement = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/products');
+      const response = await axios.get('https://recycle-backend-apao.onrender.com/api/products');
       setProducts(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -242,7 +242,7 @@ const ReCommerceOrderManagement = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('https://recycle-backend-lflh.onrender.com/api/users');
+        const response = await axios.get('https://recycle-backend-apao.onrender.com/api/users');
         setCustomers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -271,9 +271,9 @@ const ReCommerceOrderManagement = () => {
     try {
       let response;
       if (couponId) {
-        response = await axios.put(`https://recycle-backend-lflh.onrender.com/api/coupons/${couponId}`, newCoupon);
+        response = await axios.put(`https://recycle-backend-apao.onrender.com/api/coupons/${couponId}`, newCoupon);
       } else {
-        response = await axios.post('https://recycle-backend-lflh.onrender.com/api/upload-coupons', newCoupon);
+        response = await axios.post('https://recycle-backend-apao.onrender.com/api/upload-coupons', newCoupon);
       }
   
       setUploadMessage(response.data.message);
@@ -323,7 +323,7 @@ const ReCommerceOrderManagement = () => {
   const handleStartOrder = async (order) => {
     if (order) {
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/startDelivery', {
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/startDelivery', {
           id: order.id,
           status: 'in progress'
         });
@@ -345,7 +345,7 @@ const ReCommerceOrderManagement = () => {
   const handleCompleteOrder = async (updatedItems) => {
     if (selectedOrder) {
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/completeorder', {
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/completeorder', {
           id: selectedOrder.id,
           status: 'completed',
           items: updatedItems
@@ -420,7 +420,7 @@ const ReCommerceOrderManagement = () => {
   
   const handleDeleteCoupon = async (couponId) => {
     try {
-      const response = await axios.delete(`https://recycle-backend-lflh.onrender.com/api/coupons/${couponId}`);
+      const response = await axios.delete(`https://recycle-backend-apao.onrender.com/api/coupons/${couponId}`);
       if (response.status === 200) {
         setUploadMessage('Coupon deleted successfully');
         fetchallCoupons(); // Refetch the coupons to re-render the "Uploaded Coupons" section
@@ -443,7 +443,7 @@ const ReCommerceOrderManagement = () => {
       const formData = new FormData();
       formData.append('image', file);
       try {
-        const response = await axios.post('https://recycle-backend-lflh.onrender.com/upload', formData);
+        const response = await axios.post('https://recycle-backend-apao.onrender.com/upload', formData);
         return response.data.imageUrl;
       } catch (error) {
         console.error('Error uploading the file', error);

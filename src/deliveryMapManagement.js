@@ -98,7 +98,7 @@ const DeliveryMapManagement = ({ agents }) => {
   useEffect(() => {
     const fetchData = async (endpoint, setter) => {
         try {
-            const response = await axios.get(`https://recycle-backend-lflh.onrender.com/api/${endpoint}`);
+            const response = await axios.get(`https://recycle-backend-apao.onrender.com/api/${endpoint}`);
             setter(response.data);
         } catch (error) {
             console.error(`Error fetching ${endpoint} info:`, error);
