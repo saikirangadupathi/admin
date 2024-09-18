@@ -1005,10 +1005,102 @@ const handleViewScrapBuyerPerformance = (buyer) => {
                       )}
                     </div>
 
-                    {selectedScrapBuyerPerformance && (
-                            <div style={buyersPerformanceSectionStyle}>
-                              <h2>{selectedScrapBuyerPerformance?.name} Performance Overview</h2>
+                      {/* New Bar Chart showing all scrap buyers' performance */}
+                      <div style={{ width: '100%', marginBottom: '40px' }}>
+                            <h3>Scrap Buyer Performance Comparison</h3>
+                            <Bar
+                              data={{
+                                labels: scrapBuyers.map(buyer => buyer.name), // Names of all scrap buyers
+                                datasets: [
+                                  {
+                                    label: 'Total Orders',
+                                    data: scrapBuyers.map(buyer => buyer.currentOrders.length), // Number of orders handled by each scrap buyer
+                                    backgroundColor: 'rgba(75, 192, 192, 0.6)', // Bar color
+                                  },
+                                  {
+                                    label: 'Completed Orders',
+                                    data: scrapBuyers.map(buyer => buyer.currentOrders.filter(order => order.status === 'completed').length), // Completed orders by each scrap buyer
+                                    backgroundColor: 'rgba(54, 162, 235, 0.6)', // Bar color for completed orders
+                                  },
+                                ],
+                              }}
+                              options={{
+                                responsive: true,
+                                scales: {
+                                  x: {
+                                    title: {
+                                      display: true,
+                                      text: 'Scrap Buyers',
+                                    },
+                                  },
+                                  y: {
+                                    title: {
+                                      display: true,
+                                      text: 'Number of Orders',
+                                    },
+                                    beginAtZero: true,
+                                    ticks: {
+                                      stepSize: 1, // Ensure that the y-axis only displays integers
+                                    },
+                                  },
+                                },
+                              }}
+                            />
+                          </div>
+                          {/* Revenue Chart */}
+                          <h3>Scrap Buyer Revenue Comparison</h3>
+                          <div style={{ overflowX: 'auto', width: '100%' }}>
+                          <Bar
+                                    data={{
+                                      labels: scrapBuyers.map(buyer => buyer.name), // Scrap buyers on the x-axis
+                                      datasets: scrapBuyers.flatMap((buyer, buyerIndex) => 
+                                        buyer.inventory.map((categoryItem, categoryIndex) => ({
+                                          label: `${buyer.name} - ${categoryItem.category}`, // Label as Buyer + Category
+                                          data: scrapBuyers.map((innerBuyer, innerIndex) => {
+                                            if (innerIndex === buyerIndex) {
+                                              // Sum up paidAmount for items in the current category of this buyer
+                                              return categoryItem.items.reduce((sum, item) => sum + item.paidAmount, 0);
+                                            } else {
+                                              return 0; // Other buyers should not have a bar for this buyer's category
+                                            }
+                                          }),
+                                          backgroundColor: `rgba(${54 + buyerIndex * 20}, ${162 + categoryIndex * 15}, 235, 0.6)`, // Unique color for each category within a buyer
+                                        }))
+                                      ),
+                                    }}
+                                    options={{
+                                      responsive: true,
+                                      scales: {
+                                        x: {
+                                          title: {
+                                            display: true,
+                                            text: 'Scrap Buyers',
+                                          },
+                                          ticks: {
+                                            autoSkip: false, // Ensure labels are not skipped
+                                          },
+                                        },
+                                        y: {
+                                          title: {
+                                            display: true,
+                                            text: 'Total Revenue (Paid Amount)',
+                                          },
+                                          beginAtZero: true,
+                                          ticks: {
+                                            callback: function (value) {
+                                              return '₹' + value; // Show y-axis as dollar amounts
+                                            },
+                                          },
+                                        },
+                                      },
+                                    }}
+                                  />
+                          </div>
 
+                    {selectedScrapBuyerPerformance && (
+                      <div>
+                          <h2 style={{textAlign:'center'}}>{selectedScrapBuyerPerformance?.name} Performance Overview</h2>
+                            <div style={buyersPerformanceSectionStyle}>
                               {/* Inventory Categories and Items Volume */}
                               <div style={chartInventoryContainerStyle}>
                                   <div style={{ flex: 1 }}>
@@ -1066,23 +1158,23 @@ const handleViewScrapBuyerPerformance = (buyer) => {
                                 <h3>Order Status Distribution</h3>
                                 <div style={cardGridStyle}>
                                   <div style={cardStyle}>
-                                    <h4>Pending</h4>
+                                    <p>Pending</p>
                                     <p>{selectedScrapBuyerPerformance?.currentOrders?.filter(order => order.status === 'Pending').length || 0}</p>
                                   </div>
                                   <div style={cardStyle}>
-                                    <h4>In Progress</h4>
+                                    <h9>In Progress</h9>
                                     <p>{selectedScrapBuyerPerformance?.currentOrders?.filter(order => order.status === 'inProgress').length || 0}</p>
                                   </div>
                                   <div style={cardStyle}>
-                                    <h4>Completed</h4>
+                                    <h9>Completed</h9>
                                     <p>{selectedScrapBuyerPerformance?.currentOrders?.filter(order => order.status === 'completed').length || 0}</p>
                                   </div>
                                   <div style={cardStyle}>
-                                    <h4>Cancelled</h4>
+                                    <h9>Cancelled</h9>
                                     <p>{selectedScrapBuyerPerformance?.cancelledOrders?.length || 0}</p>
                                   </div>
                                   <div style={cardStyle}>
-                                    <h4>Requested</h4>
+                                    <h9>Requested</h9>
                                     <p>{selectedScrapBuyerPerformance?.requestedOrders?.filter(order => order.status === 'accepted').length || 0}</p>
                                   </div>
                                 </div>
@@ -1108,7 +1200,7 @@ const handleViewScrapBuyerPerformance = (buyer) => {
                     </div> */}
                 
                   {/* Additional Info: Contact, Business PAN ID, Operational Hours */}
-                  <div style={additionalInfoContainerStyle}>
+                  <div style={additionalContactInfoContainerStyle}>
                     <h3 style={infoTitleStyle}>Contact Information</h3>
                     <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Phone:</strong> {selectedScrapBuyerPerformance?.contact?.phone}</p>
                     <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Email:</strong> {selectedScrapBuyerPerformance?.contact?.email}</p>
@@ -1116,9 +1208,25 @@ const handleViewScrapBuyerPerformance = (buyer) => {
                     <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Operational Hours:</strong> {selectedScrapBuyerPerformance?.operationalHours}</p>
                   </div>
 
-                                        {/* Reviews */}
-                                        <div style={additionalInfoContainerStyle}>
-                                          <h3 style={infoTitleStyle}>Platform Rating: {selectedScrapBuyerPerformance?.platformRating}/5</h3>
+                                      {/* Wallet Information */}
+                                      <div style={additionalWalletInfoContainerStyle}>
+                                          <h3 style={infoTitleStyle}>Wallet</h3>
+                                          <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Balance:</strong> ₹{selectedScrapBuyerPerformance?.wallet?.balance}</p>
+                                          <h4 style={infoTitleStyle}>Transactions</h4>
+                                          <ul style={infoListStyle}>
+                                            {selectedScrapBuyerPerformance?.wallet?.transactions?.map((transaction, index) => (
+                                              <li key={index} style={infoListItemStyle}>
+                                                <strong style={infoListItemHighlightStyle}>Date:</strong> {new Date(transaction.date).toLocaleDateString()}, 
+                                                <strong style={infoListItemHighlightStyle}> Amount:</strong> ₹{transaction.amount}, 
+                                                <strong style={infoListItemHighlightStyle}> Remarks:</strong> {transaction.remarks}
+                                              </li>
+                                            )) || <p style={infoTextStyle}>No transactions available.</p>}
+                                          </ul>
+                                        </div>
+
+                                  
+                                        <div style={additionalRatingInfoContainerStyle}>
+                                          <h8 style={infoTitleStyle}>Platform Rating: {selectedScrapBuyerPerformance?.platformRating}/5</h8>
                                           <ul style={infoListStyle}>
                                             {selectedScrapBuyerPerformance?.reviews?.map((review, index) => (
                                               <li key={index} style={infoListItemStyle}>
@@ -1128,10 +1236,11 @@ const handleViewScrapBuyerPerformance = (buyer) => {
                                           </ul>
                                         </div>
 
-                                        {/* Current Orders */}
+                                      
                                 <div style={additionalInfoContainerStyle}>
-                                          <h3 style={infoTitleStyle}>Current Orders</h3>
+                                      <h3 style={infoTitleStyle}>Current Orders</h3>
                                           {selectedScrapBuyerPerformance?.currentOrders?.length > 0 ? (
+                                            <div style={currentOrderTableContainerStyle}>
                                             <table style={currentOrdertableStyle}>
                                               <thead>
                                                 <tr>
@@ -1150,16 +1259,17 @@ const handleViewScrapBuyerPerformance = (buyer) => {
                                                 ))}
                                               </tbody>
                                             </table>
+                                          </div>
                                           ) : (
                                             <p style={infoTextStyle}>No current orders.</p>
-                                          )}
+                                    )}
                                 </div>
 
                                         {/* Completed Orders */}
                                         <div style={additionalInfoContainerStyle}>
                                             <h3 style={infoTitleStyle}>Completed Orders</h3>
                                             <ul style={infoListStyle}>
-                                              {selectedScrapBuyerPerformance?.completedOrders?.map((order, index) => (
+                                            {selectedScrapBuyerPerformance?.currentOrders?.filter(order => order.status === 'completed').map((order, index) => (
                                                 <li key={index} style={infoListItemStyle}>
                                                   <strong style={infoListItemHighlightStyle}>Order ID:</strong> {order.orderId}, 
                                                   <strong style={infoListItemHighlightStyle}> Completed Date:</strong> {new Date(order.completedDate).toLocaleDateString()}, 
@@ -1198,64 +1308,50 @@ const handleViewScrapBuyerPerformance = (buyer) => {
                                           </ul>
                                         </div>
 
-                                        {/* Wallet Information */}
-                                        <div style={additionalInfoContainerStyle}>
-                                          <h3 style={infoTitleStyle}>Wallet</h3>
-                                          <p style={infoTextStyle}><strong style={infoListItemHighlightStyle}>Balance:</strong> ₹{selectedScrapBuyerPerformance?.wallet?.balance}</p>
-                                          <h4 style={infoTitleStyle}>Transactions</h4>
-                                          <ul style={infoListStyle}>
-                                            {selectedScrapBuyerPerformance?.wallet?.transactions?.map((transaction, index) => (
-                                              <li key={index} style={infoListItemStyle}>
-                                                <strong style={infoListItemHighlightStyle}>Date:</strong> {new Date(transaction.date).toLocaleDateString()}, 
-                                                <strong style={infoListItemHighlightStyle}> Amount:</strong> ₹{transaction.amount}, 
-                                                <strong style={infoListItemHighlightStyle}> Remarks:</strong> {transaction.remarks}
-                                              </li>
-                                            )) || <p style={infoTextStyle}>No transactions available.</p>}
-                                          </ul>
-                                        </div>
-
-                                        {/* Posted Offers */}
                                     <div style={additionalInfoContainerStyle}>
                                       <h3 style={infoTitleStyle}>Posted Offers</h3>
                                       <div style={offersContainerStyle}>
                                         {selectedScrapBuyerPerformance?.postedOffers?.map((offer, index) => (
-                                          <div key={index} style={offerCardStyle}>
-                                            <h4 style={offerTitleStyle}>Offer ID: {offer.offerId}</h4>
+                                          <div style={offerCardStyle}>
+                                            <div style={{textAlign: 'left', backgroundColor:'white', padding:'2vh',marginBottom:'2vh',borderRadius:'2vw' }}>
+                                            <p style={offerTextStyle}>Offer ID: {offer.offerId}</p>
                                             <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Material Type:</strong> {offer.materialType}</p>
                                             <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Quantity Available:</strong> {offer.quantityAvailable}</p>
                                             <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Price Per Unit:</strong> ₹{offer.pricePerUnit}</p>
                                             
                                             <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Description:</strong> {offer.description}</p>
-                                            
-                                            <div style={imagePreviewContainerStyle}>
-                                              {offer.images.map((image, imgIndex) => (
-                                                <img key={imgIndex} src={image} alt={`Offer Image ${imgIndex + 1}`} style={imageThumbnailStyle} />
-                                              ))}
                                             </div>
-
-                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Views:</strong> {offer.views}</p>
-                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Status:</strong> {offer.status}</p>
-                                            <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Posted Date:</strong> {new Date(offer.postedDate).toLocaleDateString()}</p>
-                                            
+                                            <div style={offerInfocard}>
+                                                    <div style={imagePreviewContainerStyle}>
+                                                      {offer.images.map((image, imgIndex) => (
+                                                        <img key={imgIndex} src={image} alt={`Offer Image ${imgIndex + 1}`} style={imageThumbnailStyle} />
+                                                      ))}
+                                                    </div>
+                                                    <div style={{textAlign:'left',marginLeft:'1vh',padding:'0.5vh',borderBottomRightRadius:'1vw',borderTopRightRadius:'1vw',backgroundColor:'white'}}>
+                                                        <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Views:</strong> {offer.views}</p>
+                                                        <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Status:</strong> {offer.status}</p>
+                                                        <p style={offerTextStyle}><strong style={infoListItemHighlightStyle}>Posted Date:</strong> {new Date(offer.postedDate).toLocaleDateString()}</p>
+                                                    </div>
+                                            </div>
                                             {offer.comments && offer.comments.length > 0 && (
-                                              <div style={commentsContainerStyle}>
-                                                <h4 style={commentsTitleStyle}>Comments:</h4>
-                                                <ul style={commentsListStyle}>
-                                                  {offer.comments.map((comment, commentIndex) => (
-                                                    <li key={commentIndex} style={commentItemStyle}>
-                                                      <p style={commentTextStyle}><strong>User:</strong> {comment.userId}</p>
-                                                      <p style={commentTextStyle}><strong>Comment:</strong> {comment.text}</p>
-                                                    </li>
-                                                  ))}
-                                                </ul>
-                                              </div>
-                                            )}
+                                                      <div style={commentsContainerStyle}>
+                                                        <h4 style={commentsTitleStyle}>Comments:</h4>
+                                                        <ul style={commentsListStyle}>
+                                                          {offer.comments.map((comment, commentIndex) => (
+                                                            <li key={commentIndex} style={commentItemStyle}>
+                                                              <p style={commentTextStyle}><strong>User:</strong> {comment.userId}</p>
+                                                              <p style={commentTextStyle}><strong>Comment:</strong> {comment.text}</p>
+                                                            </li>
+                                                          ))}
+                                                        </ul>
+                                                      </div>
+                                                    )}
                                           </div>
                                         )) || <p style={infoTextStyle}>No offers posted.</p>}
                                       </div>
                                     </div>
-                                        
-                                </div>          
+                              </div>   
+                          </div>          
                 )}
 
 
@@ -1798,10 +1894,6 @@ const tableRowStyle = {
   backgroundColor: '#f9f9f9',
 };
 
-const tableCellStyle1 = {
-  padding: '10px',
-  border: '1px solid #dddddd',
-};
 
 
 const recyclableTableStyle = {
@@ -1813,18 +1905,18 @@ const imagePreviewContainerStyle = {
   display: 'flex',
   flexWrap: 'wrap',
   gap: '10px',
-  marginBottom: '20px',
+  marginBottom: '2vh',
 };
 
 const imagePreviewStyle = {
   position: 'relative',
-  width: '100px',
-  height: '100px',
+  width: '5vw',
+  height: '10vh',
 };
 
 const imageThumbnailStyle = {
-  width: '100%',
-  height: '100%',
+  width: '5vw',
+  height: '10vh',
   objectFit: 'cover',
   borderRadius: '5px',
   boxShadow: '0 0 5px rgba(0, 0, 0, 0.1)',
@@ -1994,6 +2086,14 @@ const itemPriceStyle = {
   color: '#4caf50',
 };
 
+
+const currentOrderTableContainerStyle = {
+  maxHeight: '300px',
+  overflowY: 'auto',
+  width: '100%',
+  marginBottom: '20px',
+};
+
 const currentOrdertableStyle = {
   width: '100%',
   borderCollapse: 'collapse',
@@ -2009,6 +2109,14 @@ const tableHeaderCellStyle = {
   color: '#333',
 };
 
+const tableCellStyle1 = {
+  padding: '10px',
+  borderBottom: '1px solid #ddd',
+  color: '#555',
+};
+
+
+
 const tableCellStyle = {
   padding: '10px',
   borderBottom: '1px solid #ddd',
@@ -2017,36 +2125,88 @@ const tableCellStyle = {
 
 
 const buyersPerformanceSectionStyle = {
+  display: 'flex',
+  flexWrap: 'wrap',  // Ensures wrapping of the content when screen space is limited
+  gap: '2vw',       
+  justifyContent: 'flex-start',
   backgroundColor: '#ffffff',
   borderRadius: '10px',
-  padding: '20px',
+  padding: '2vh',
   boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
   marginBottom: '20px',
+};
+
+
+const infoCardStyle = {
+  flex: '1 1 20vw',
+  backgroundColor: '#ffffff',
+  padding: '2vh',
+  borderRadius: '10px',
+  boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+  marginBottom: '2vh',
+};
+
+const orderStatusContainerStyle = {
+  ...infoCardStyle,
+  maxWidth: '25vw',
+};
+
+const additionalInfoContainerStyle = {
+  ...infoCardStyle,
+  maxWidth: '25vw',
+};
+const additionalContactInfoContainerStyle = {
+  ...infoCardStyle,
+  maxWidth: '16vw',
+};
+const additionalRatingInfoContainerStyle = {
+  ...infoCardStyle,
+  maxWidth: '16vw',
+  maxHeight: '14vh'
+};
+
+const additionalWalletInfoContainerStyle = {
+  ...infoCardStyle,
+  maxWidth: '16vw',
+};
+
+const walletContainerStyle = {
+  ...infoCardStyle,
+};
+
+const cardGridStyle = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '2vh',
+  justifyContent: 'flex-start',
+
 };
 
 const chartContainerStyle = {
   marginTop: '20px',
 };
 
-const orderStatusContainerStyle = {
-  marginBottom: '20px',
-  backgroundColor: '#ffffff',
-  padding: '20px',
-  borderRadius: '10px',
-  boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-};
+// const orderStatusContainerStyle = {
+//   marginBottom: '20px',
+//   backgroundColor: '#ffffff',
+//   padding: '20px',
+//   borderRadius: '10px',
+//   boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+// };
 
-const cardGridStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  gap: '20px',
-};
+// const cardGridStyle = {
+//   display: 'flex',
+//   justifyContent: 'space-between',
+//   gap: '20px',
+// };
 
 const cardStyle = {
   flex: 1,
+  maxHeight: '10vh',
+  maxWidth: '5vw',
   backgroundColor: '#f5f5f5',
   borderRadius: '8px',
-  padding: '20px',
+  fontSize: '1.5vh',
   textAlign: 'center',
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
 };
@@ -2072,13 +2232,13 @@ const chartInventoryContainerStyle = {
   marginTop: '20px',
 };
 
-const additionalInfoContainerStyle = {
-  backgroundColor: '#ffffff',
-  borderRadius: '12px',
-  padding: '20px',
-  marginBottom: '20px',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-};
+// const additionalInfoContainerStyle = {
+//   backgroundColor: '#ffffff',
+//   borderRadius: '12px',
+//   padding: '20px',
+//   marginBottom: '20px',
+//   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+// };
 
 const infoTitleStyle = {
   fontSize: '24px',
@@ -2120,11 +2280,11 @@ const offersContainerStyle = {
 };
 
 const offerCardStyle = {
-  backgroundColor: '#f9f9f9',
+  backgroundColor: '#c7c7c7',
   borderRadius: '10px',
   padding: '15px',
   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
-  width: 'calc(33.333% - 20px)', // Adjust based on the number of cards per row
+  width: '20vw',
   boxSizing: 'border-box',
   marginBottom: '20px',
 };
@@ -2141,6 +2301,13 @@ const offerTextStyle = {
   color: '#666',
   marginBottom: '5px',
 };
+const offerInfocard = {
+  display: 'flex',
+  justifyContent: 'row',
+  color: '#666',
+  marginBottom: '5px',
+};
+
 
 const commentsContainerStyle = {
   marginTop: '10px',
